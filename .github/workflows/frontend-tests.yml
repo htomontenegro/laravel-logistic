@@ -1,0 +1,50 @@
+name: Frontend Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+        working-directory: client
+
+      - name: Run tests
+        run: npm test -- --run
+        working-directory: client
+
+      - name: Run linter
+        run: npm run lint
+        working-directory: client
+        continue-on-error: true
+
+      - name: Build
+        run: npm run build
+        working-directory: client
+
+      - name: Generate coverage report
+        run: npm test -- --coverage --run
+        working-directory: client
+        if: always()
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./client/coverage/coverage-final.json
+          flags: frontend
+        if: always()
