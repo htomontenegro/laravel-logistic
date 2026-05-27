@@ -21,6 +21,7 @@
 /storage/*.key
 /storage/pail
 /vendor
+/storage/app/GeoLite2-City.mmdb
 _ide_helper.php
 Homestead.json
 Homestead.yaml

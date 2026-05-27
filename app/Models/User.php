@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\WhitelistedDevice;
+use App\Models\LoginAttempt;
 
 
 #[Fillable(['name', 'email', 'password',  'mfa_enabled', 'mfa_verified_at'])]
@@ -37,5 +39,15 @@ class User extends Authenticatable
     public function mfaSetting()
     {
         return $this->hasOne(MfaSetting::class);
+    }
+
+    public function loginAttempts()
+    {
+        return $this->hasMany(LoginAttempt::class);
+
+    }
+    public function whitelistedDevices()
+    {
+        return $this->hasMany(WhitelistedDevice::class);
     }
 }

@@ -10,6 +10,7 @@
         "laravel/framework": "^13.8",
         "laravel/sanctum": "^4.3",
         "laravel/tinker": "^3.0",
+        "maxmind-db/reader": "^1.13",
         "spomky-labs/otphp": "^11.4"
     },
     "require-dev": {
