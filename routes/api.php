@@ -4,7 +4,8 @@ use App\Http\Controllers\MfaController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DeviceController;
-
+use App\Http\Controllers\ManifestController;
+use App\Http\Controllers\QuoteController;
 
 Route::post('/auth/register', [AuthController::class, 'register'])
     ->middleware('throttle:auth');
@@ -34,3 +35,7 @@ Route::middleware(['auth:sanctum', 'abilities:*'])->group(function () {
     Route::post('/devices/trust', [DeviceController::class, 'trust']);
     Route::delete('/devices/{id}', [DeviceController::class, 'destroy']);
 });
+
+Route::post('/manifests/upload', [ManifestController::class, 'upload']);
+Route::get('/manifests/{manifest}/status', [ManifestController::class, 'status']);
+Route::post('/quotes', [QuoteController::class, 'store']);

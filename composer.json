@@ -7,10 +7,12 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "aws/aws-sdk-php": "^3.383",
         "laravel/framework": "^13.8",
         "laravel/sanctum": "^4.3",
         "laravel/tinker": "^3.0",
         "maxmind-db/reader": "^1.13",
+        "phpoffice/phpspreadsheet": "^5.7",
         "spomky-labs/otphp": "^11.4"
     },
     "require-dev": {

@@ -1,42 +1,42 @@
-name: CI/CD Pipeline
+name: CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: ['**']
   pull_request:
-    branches: [main, develop]
+    branches: [master]
 
 jobs:
   backend:
     name: Backend Tests
     runs-on: ubuntu-latest
-    
+
     services:
-      mysql:
-        image: mysql:8.0
+      postgres:
+        image: postgres:15
         env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: testing
+          POSTGRES_DB: laravel_test
+          POSTGRES_USER: laravel
+          POSTGRES_PASSWORD: secret
+        ports: ['5432:5432']
         options: >-
-          --health-cmd="mysqladmin ping"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
-        ports:
-          - 3306:3306
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: mbstring, pdo, pdo_mysql
+          extensions: mbstring, pdo, pdo_pgsql, bcmath, tokenizer, xml, ctype
           tools: composer:v2
 
       - name: Cache Composer dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: vendor
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -51,36 +51,36 @@ jobs:
           php artisan key:generate
 
       - name: Run migrations
-        run: php artisan migrate --force
         env:
-          DB_CONNECTION: mysql
+          DB_CONNECTION: pgsql
           DB_HOST: 127.0.0.1
-          DB_PORT: 3306
-          DB_DATABASE: testing
-          DB_USERNAME: root
-          DB_PASSWORD: root
+          DB_PORT: 5432
+          DB_DATABASE: laravel_test
+          DB_USERNAME: laravel
+          DB_PASSWORD: secret
+        run: php artisan migrate --force
 
       - name: Run tests
-        run: php artisan test
         env:
-          DB_CONNECTION: mysql
+          DB_CONNECTION: pgsql
           DB_HOST: 127.0.0.1
-          DB_PORT: 3306
-          DB_DATABASE: testing
-          DB_USERNAME: root
-          DB_PASSWORD: root
+          DB_PORT: 5432
+          DB_DATABASE: laravel_test
+          DB_USERNAME: laravel
+          DB_PASSWORD: secret
+        run: php artisan test
 
   frontend:
     name: Frontend Tests
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
           cache-dependency-path: client/package-lock.json
 
@@ -111,17 +111,17 @@ jobs:
       - name: Backend Status
         run: |
           if [ "${{ needs.backend.result }}" = "success" ]; then
-            echo "✓ Backend tests passed"
+            echo "Backend tests passed"
           else
-            echo "✗ Backend tests failed"
+            echo "Backend tests failed"
             exit 1
           fi
 
       - name: Frontend Status
         run: |
           if [ "${{ needs.frontend.result }}" = "success" ]; then
-            echo "✓ Frontend tests passed"
+            echo "Frontend tests passed"
           else
-            echo "✗ Frontend tests failed"
+            echo "Frontend tests failed"
             exit 1
           fi
