@@ -24,6 +24,11 @@ jobs:
             set -e
             cd /var/www/laravel-logistic
 
+            script: |
+            set -e
+            git config --global --add safe.directory /var/www/laravel-logistic
+            cd /var/www/laravel-logistic
+
             git pull origin master
 
             composer install --no-dev --optimize-autoloader --no-interaction
